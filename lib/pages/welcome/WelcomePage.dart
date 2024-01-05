@@ -1,8 +1,10 @@
+import 'package:aaas/pages/BottomNavigationBar/BottomNavigationBar.dart';
 import 'package:aaas/pages/auth/AuthenticationPage.dart';
 import 'package:aaas/pages/auth/ConnexionPage.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:json_theme/json_theme.dart';
 
 import 'package:provider/provider.dart';
 import '../../ProviderModel.dart';
@@ -30,11 +32,11 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
+          stream: FirebaseAuth.instance.userChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               getUserInfos();
-              return WelcomePage(); //bottom navigation bar
+              return BottomNavigationBarPage();
             } else {
               return SafeArea(
                   child: SingleChildScrollView(
@@ -64,7 +66,6 @@ class _WelcomePageState extends State<WelcomePage> {
                             child: Text(
                                 'Créer un compte', style: TextStyle(color: Colors
                                 .white)),
-                            color: Colors.redAccent,
                             successColor: Colors.green,
                             controller: _getStartedBtnController,
                             onPressed: () => _onClickGetStartedButton(),
@@ -73,7 +74,7 @@ class _WelcomePageState extends State<WelcomePage> {
                           RoundedLoadingButton(
                             child: Text("J'ai déjà un compte",
                                 style: TextStyle(color: Colors.white)),
-                            color: Colors.grey.withOpacity(0.8),
+                            //color: ColorSchemeSchema(AlertDialog),
                             controller: _haveAnAccountBtnController,
                             onPressed: _onClickAlreadyHaveAnAccountButton,
                           ),
@@ -95,18 +96,18 @@ class _WelcomePageState extends State<WelcomePage> {
     _docRef.get().then((DocumentSnapshot docSnap) {
       if (docSnap.exists) {
         Map<String, dynamic> data = docSnap.data() as Map<String, dynamic>;
-        String Name = data['Name'];
+        String FirstName = data['FirstName'];
         String ProfilePicture = data['ProfilePicture'];
-        changeUser(Name, ProfilePicture);
+        changeUser(FirstName, ProfilePicture);
       } else {
         // Handle the case where the document does not exist
       }
     });
   }
 
-  void changeUser(String Name, String ProfilePicture) {
+  void changeUser(String FirstName, String ProfilePicture) {
     final providerModel = Provider.of<ProviderModel>(context, listen: false);
-    providerModel.setName(Name);
+    providerModel.setFirstName(FirstName);
     providerModel.setProfilePicture(ProfilePicture);
   }
 

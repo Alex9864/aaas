@@ -4,17 +4,25 @@ import 'package:provider/provider.dart';
 import 'ProviderModel.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:json_theme/json_theme.dart';
+import 'package:flutter/services.dart'; // For rootBundle
+import 'dart:convert'; // For jsonDecode
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
+  final themeJson = jsonDecode(themeStr);
+  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MyApp(theme: theme));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeData theme;
+
+  const MyApp({Key? key, required this.theme}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -22,13 +30,8 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => ProviderModel(),
       child: MaterialApp(
-          title: 'aaas',
-          theme: ThemeData(
-            primaryColor: Colors.orange,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrangeAccent),
-            scaffoldBackgroundColor: Colors.white,
-            useMaterial3: true,
-          ),
+          theme: theme,
+          title: 'Spérienzha',
           home: const WelcomePage(),
           debugShowCheckedModeBanner: false
       ),
